@@ -1,13 +1,17 @@
 const express = require("express");
-const { getQuestion } = require("./utils/mathUtilities");
+const bodyParser = require("body-parser");
+const {
+  getQuestion,
+  getAnswer,
+  mathQuestion,
+} = require("./utils/mathUtilities"); // Import getAnswer
 const app = express();
 const port = 3000;
 
+app.use(bodyParser.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
-app.use(express.urlencoded({ extended: true })); // For parsing form data
-app.use(express.static("public")); // To serve static files (e.g., CSS)
+app.use(express.static("public"));
 
-//Some routes required for full functionality are missing here. Only get routes should be required
 app.get("/", (req, res) => {
   res.render("index");
 });
@@ -24,15 +28,28 @@ app.get("/completed", (req, res) => {
   res.render("completed");
 });
 
-//Handles quiz submissions.
+// Handles quiz submissions.
 app.post("/quiz", (req, res) => {
-  const { answer } = req.body;
-  console.log(`Answer: ${answer}`);
+  const { question, answer } = req.body; // Here, you need to ensure that 'question' is sent in the form.
+  console.log(`Question: ${question}, Answer: ${answer}`);
 
-  //answer will contain the value the user entered on the quiz page
-  //Logic must be added here to check if the answer is correct, then track the streak and redirect properly
-  //By default we'll just redirect to the homepage again.
-  res.redirect("/");
+  const correctAnswer = getAnswer(question); // This should work now
+  let resultMessage;
+
+  if (correctAnswer === answer) {
+    resultMessage = "Correct!";
+  } else {
+    resultMessage = `Incorrect! The correct answer was ${correctAnswer}.`;
+  }
+
+  // Get a new random question from mathQuestion
+  const newQuestion =
+    mathQuestion[Math.floor(Math.random() * mathQuestion.length)];
+
+  res.render("quiz", {
+    resultMessage,
+    question: newQuestion, // Ensure you're passing the new question here
+  });
 });
 
 // Start the server
