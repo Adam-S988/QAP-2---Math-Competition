@@ -17,7 +17,8 @@ app.get("/", (req, res) => {
 });
 
 app.get("/quiz", (req, res) => {
-  res.render("quiz", { question: getQuestion() });
+  const question = getQuestion(); // Generate a question
+  res.render("quiz", { question, resultMessage: null });
 });
 
 app.get("/leaderboards", (req, res) => {
@@ -30,25 +31,26 @@ app.get("/completed", (req, res) => {
 
 // Handles quiz submissions.
 app.post("/quiz", (req, res) => {
-  const { question, answer } = req.body; // Here, you need to ensure that 'question' is sent in the form.
+  const { question, answer } = req.body;
   console.log(`Question: ${question}, Answer: ${answer}`);
 
-  const correctAnswer = getAnswer(question); // This should work now
+  const correctAnswer = getAnswer(question);
+
+  const providedAnswer = Number(answer);
+
   let resultMessage;
 
-  if (correctAnswer === answer) {
+  if (correctAnswer === providedAnswer) {
     resultMessage = "Correct!";
   } else {
     resultMessage = `Incorrect! The correct answer was ${correctAnswer}.`;
   }
 
-  // Get a new random question from mathQuestion
-  const newQuestion =
-    mathQuestion[Math.floor(Math.random() * mathQuestion.length)];
+  const newQuestion = getQuestion();
 
   res.render("quiz", {
     resultMessage,
-    question: newQuestion, // Ensure you're passing the new question here
+    question: newQuestion,
   });
 });
 
