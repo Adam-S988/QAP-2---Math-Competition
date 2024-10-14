@@ -5,7 +5,8 @@ const {
   getQuestion,
   getAnswer,
   mathQuestion,
-} = require("./utils/mathUtilities"); // Import getAnswer
+} = require("./utils/mathUtilities");
+let leaderboard = [];
 const app = express();
 const port = 3000;
 
@@ -38,7 +39,7 @@ app.get("/quiz", (req, res) => {
 });
 
 app.get("/leaderboards", (req, res) => {
-  res.render("leaderboards");
+  res.render("leaderboards", { top10: leaderboard.slice(0, 10) }); // Pass the top 10 streaks
 });
 
 app.get("/completed", (req, res) => {
@@ -62,15 +63,27 @@ app.post("/quiz", (req, res) => {
     res.render("quiz", {
       resultMessage,
       question: newQuestion,
-      streak: req.session.streak,
+      streak: req.session.streak, // Pass the streak to the view
     });
   } else {
     const currentStreak = req.session.streak;
     req.session.streak = 0; // Reset the streak on incorrect answer
     resultMessage = `Incorrect! The correct answer was ${correctAnswer}.`;
 
-    res.render("completed", {
+    // Store the streak and date in the leaderboard
+    leaderboard.push({
       streak: currentStreak,
+      date: new Date().toLocaleString(),
+    });
+
+    // Sort the leaderboard by streak in descending order and slice the top 10
+    leaderboard.sort((a, b) => b.streak - a.streak);
+    const top10 = leaderboard.slice(0, 10);
+
+    // Redirect to the completed page with the current streak
+    res.render("completed", {
+      streak: currentStreak, // Pass the current streak to the completed page
+      top10, // Pass the top 10 streaks to the completed page
     });
   }
 });
