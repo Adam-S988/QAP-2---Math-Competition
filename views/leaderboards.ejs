@@ -1,9 +1,10 @@
 <!-- The header ejs template is included to ensure our CSS and fonts are loaded -->
 <%- include('partials/header') %>
 <main class="main-content index_container">
+    <div class="main">
     <h1>Math Competition Leaderboards</h1>
     <h2>Top 10:</h2>
-    <table>
+    <table class="box">
         <thead>
             <tr>
                 <th>Rank</th>
@@ -22,6 +23,7 @@
         </tbody>
     </table>
     <a href="/">Return to Home</a>
+    </div>
 </main>
 </body>
 </html>
